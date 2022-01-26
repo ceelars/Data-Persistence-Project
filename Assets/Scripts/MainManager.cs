@@ -10,7 +10,7 @@ public class MainManager : MonoBehaviour
     public int LineCount = 6;
     public Rigidbody Ball;
 
-    public Text ScoreText;
+    public Text ScoreText, bestScore;
     public GameObject GameOverText;
     
     private bool m_Started = false;
@@ -18,7 +18,10 @@ public class MainManager : MonoBehaviour
     
     private bool m_GameOver = false;
 
-    
+    private void Awake()
+    {
+        UpdateBestScore();
+    }
     // Start is called before the first frame update
     void Start()
     {
@@ -60,6 +63,7 @@ public class MainManager : MonoBehaviour
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             }
         }
+        QuitToMenu();
     }
 
     void AddPoint(int point)
@@ -71,6 +75,42 @@ public class MainManager : MonoBehaviour
     public void GameOver()
     {
         m_GameOver = true;
+        SaveScore();
         GameOverText.SetActive(true);
+    }
+
+    void QuitToMenu()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            SceneManager.LoadScene(0);
+        }
+    }
+    void SaveScore()
+    {
+        if (m_Points > DataManager.firstPlaceScore)
+        {
+            DataManager.secondPlaceName = DataManager.firstPlaceName;
+            DataManager.secondPlaceScore = DataManager.firstPlaceScore;
+            DataManager.firstPlaceName = DataManager.playerName;
+            DataManager.firstPlaceScore = m_Points;
+            UpdateBestScore();
+        }
+        else if (DataManager.firstPlaceScore >= m_Points && m_Points > DataManager.secondPlaceScore)
+        {
+            DataManager.thirdPlaceName = DataManager.secondPlaceName;
+            DataManager.thirdPlaceScore = DataManager.secondPlaceScore;
+            DataManager.secondPlaceName = DataManager.playerName;
+            DataManager.secondPlaceScore = m_Points;
+        }
+        else if (DataManager.secondPlaceScore >= m_Points && m_Points > DataManager.thirdPlaceScore)
+        {
+            DataManager.thirdPlaceName= DataManager.playerName;
+            DataManager.thirdPlaceScore = m_Points;
+        }
+    }
+    void UpdateBestScore()
+    {
+        bestScore.text = "Best Score: " + DataManager.firstPlaceName + " " + DataManager.firstPlaceScore;
     }
 }
